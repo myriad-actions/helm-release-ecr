@@ -35,7 +35,7 @@ runs:
 
     - name: Package and push helm chart to Amazon ECR
       env:
-        CHARTREPO: ${{ steps.login-ecr.outputs.registry }}/chart/${{ inputs.app }}
+        CHARTREPO: ${{ steps.login-ecr.outputs.registry }}/chart/
         APPNAME: ${{ inputs.app }}
         VERSION: ${{ inputs.version }}
       run: |
