@@ -1,0 +1,45 @@
+name: "Package helm release and publish to ECR"
+description: set the chart file with the new image and generate the chart.tgz file and push to ECR
+
+inputs:
+  version:
+    description: "The tag of the image / app version + hash commit"
+    required: true
+  app:
+    description: "The sub folder where the chart is stored / name of the application"
+    required: true
+  project:
+    description: "The project name"
+    required: true
+  role:
+    description: "IAM Role to use for ECR"
+    required: true
+
+runs:
+  # allow you to bundle multiple workflow steps into a single action, combining multiple run commands into a single reusable action.
+  using: "composite"
+  steps:
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+      name: Install helm-s3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
+      with:
+        role-to-assume: ${{ inputs.role }}
+        aws-region: ${{ inputs.region }}
+          
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Package and push helm chart to Amazon ECR
+      env:
+        CHARTREPO: ${{ steps.login-ecr.outputs.registry }}/chart/${{ inputs.app }}
+        APPNAME: ${{ inputs.app }}
+        VERSION: ${{ inputs.version }}
+      run: |
+        helm lint .
+        cat ${{ inputs.project }}.values.yaml > values.yaml
+        helm package --app-version=${VERSION} --version=${VERSION} .
+        helm push ./${APPNAME}-${VERSION}.tgz oci://${{env.CHARTREPO}}
