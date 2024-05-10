@@ -8,6 +8,9 @@ inputs:
   project:
     description: "The project name"
     required: true
+  region:
+    description: "IAM Role to use for ECR"
+    required: true
   role:
     description: "IAM Role to use for ECR"
     required: true
