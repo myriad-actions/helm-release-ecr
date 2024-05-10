@@ -2,9 +2,6 @@ name: "Package helm release and publish to ECR"
 description: set the chart file with the new image and generate the chart.tgz file and push to ECR
 
 inputs:
-  version:
-    description: "The tag of the image / app version + hash commit"
-    required: true
   app:
     description: "The sub folder where the chart is stored / name of the application"
     required: true
@@ -13,6 +10,9 @@ inputs:
     required: true
   role:
     description: "IAM Role to use for ECR"
+    required: true
+  version:
+    description: "The tag of the image / app version + hash commit"
     required: true
 
 runs:
@@ -34,10 +34,12 @@ runs:
       uses: aws-actions/amazon-ecr-login@v2
 
     - name: Package and push helm chart to Amazon ECR
+      shell: bash
       env:
         CHARTREPO: ${{ steps.login-ecr.outputs.registry }}/chart/
         APPNAME: ${{ inputs.app }}
         VERSION: ${{ inputs.version }}
+      working-directory: ${{ inputs.app }}
       run: |
         helm lint .
         cat ${{ inputs.project }}.values.yaml > values.yaml
