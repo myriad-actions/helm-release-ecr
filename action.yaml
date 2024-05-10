@@ -24,7 +24,6 @@ runs:
   steps:
     - name: Install Helm
       uses: azure/setup-helm@v3
-      name: Install helm-s3
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
