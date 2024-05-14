@@ -9,7 +9,10 @@ inputs:
     description: "The project name"
     required: true
   region:
-    description: "IAM Role to use for ECR"
+    description: "AWS region for ECR"
+    required: true
+  repo-path:
+    description: "Path to orchestration Helm charts"
     required: true
   role:
     description: "IAM Role to use for ECR"
@@ -41,9 +44,12 @@ runs:
         CHARTREPO: ${{ steps.login-ecr.outputs.registry }}/chart/
         APPNAME: ${{ inputs.app }}
         VERSION: ${{ inputs.version }}
-      working-directory: ${{ inputs.app }}
+        REPOPATH: ${{ inputs.repo-path }}
       run: |
+        WORKDIR=$(pwd)
+        cd ${GITHUB_WORKSPACE}/${REPOPATH}/${APPNAME}
         helm lint .
         cat ${{ inputs.project }}.values.yaml > values.yaml
         helm package --app-version=${VERSION} --version=${VERSION} .
         helm push ./${APPNAME}-${VERSION}.tgz oci://${{env.CHARTREPO}}
+        cd ${WORKDIR}
