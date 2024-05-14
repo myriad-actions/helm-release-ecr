@@ -44,12 +44,9 @@ runs:
         CHARTREPO: ${{ steps.login-ecr.outputs.registry }}/chart/
         APPNAME: ${{ inputs.app }}
         VERSION: ${{ inputs.version }}
-        REPOPATH: ${{ inputs.repo-path }}
+      working-directory: ${{ inputs.repo-path }}/${{ inputs.app }}
       run: |
-        WORKDIR=$(pwd)
-        cd ${GITHUB_WORKSPACE}/${REPOPATH}/${APPNAME}
         helm lint .
         cat ${{ inputs.project }}.values.yaml > values.yaml
         helm package --app-version=${VERSION} --version=${VERSION} .
         helm push ./${APPNAME}-${VERSION}.tgz oci://${{env.CHARTREPO}}
-        cd ${WORKDIR}
