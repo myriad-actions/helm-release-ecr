@@ -46,6 +46,9 @@ runs:
         VERSION: ${{ inputs.version }}
       working-directory: ${{ inputs.repo-path }}/${{ inputs.app }}
       run: |
+        pwd
+        ls -la
+        ls -la ../
         helm lint .
         cat ${{ inputs.project }}.values.yaml > values.yaml
         helm package --app-version=${VERSION} --version=${VERSION} .
